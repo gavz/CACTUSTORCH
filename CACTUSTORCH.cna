@@ -36,7 +36,7 @@ sub setup_attack {
 		# VBScript it is!
 		$data = $data . "Dim binary : binary = \"" . %options["binary"] . "\"\r\n";
 		$data = $data . "Dim code : code = \"";
-		$data = $data . $b64payload . "\";\r\n";
+		$data = $data . $b64payload . "\"\r\n";
 
 		# variables set at this point
 
